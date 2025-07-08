@@ -1,0 +1,52 @@
+<Cabbage>
+form size(0, 0)
+</Cabbage>
+
+<CsoundSynthesizer>
+<CsOptions>
+-d -odac
+</CsOptions>
+
+<CsInstruments>
+sr=44100
+ksmps=64
+nchnls=2
+0dbfs=1 
+
+; Scene 1: Warm pad
+instr 1
+  kmod oscil 5, 0.1, 1
+  a1 oscili 0.4, 220 + kmod, 1
+  a2 oscili 0.4, 330 - kmod, 1
+  amix = a1 + a2
+  outs amix, amix
+endin
+
+; Scene 2: Glitchy texture
+instr 2
+  kamp randh 0.1, 5
+  anoise rand 1
+  afilt moogladder anoise * kamp, 800 + randh(1000, 0.2), 0.5
+  outs afilt, afilt
+endin
+
+; Scene 3: Low pulse
+instr 3
+  a1 oscili 0.5, 110, 1
+  a2 oscili 0.5, 55, 1
+  outs a1 + a2, a1 + a2
+endin
+
+</CsInstruments>
+
+<CsScore>
+f1 0 4096 10 1
+
+; Start warm pad
+i1 0 90
+; Add glitch layer after 30 sec
+i2 30 60
+; Add low pulse after 60 sec
+i3 60 30
+</CsScore>
+</CsoundSynthesizer>
