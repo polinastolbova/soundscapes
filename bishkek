@@ -1,0 +1,88 @@
+<CsoundSynthesizer>
+<CsOptions>
+-odac
+</CsOptions>
+
+<CsInstruments>
+sr = 44100
+ksmps = 32
+nchnls = 2
+0dbfs = 1
+
+; ---------------------------------------------------------
+; 1. Harmonic Grid — soft tonal foundation
+;    Three slowly drifting sine waves create a stable,
+;    architectural harmonic field. No sharp attacks.
+; ---------------------------------------------------------
+instr 1
+k1 lfo 0.2, 0.01      ; very slow frequency drift
+k2 lfo 0.15, 0.015
+k3 lfo 0.1, 0.02
+
+a1 oscili 0.12, 110 + k1, 1
+a2 oscili 0.10, 220 + k2, 1
+a3 oscili 0.08, 330 + k3, 1
+
+agrid = (a1 + a2 + a3) * 0.6
+
+; Long fade-in and fade-out for meditative smoothness
+agrid = agrid * linen(1, 5, p3, 5)
+
+outs agrid, agrid
+endin
+
+; ---------------------------------------------------------
+; 2. Soft Breathing Pulse — slow, organic movement
+;    No impulses, no clicks. A gentle sine-based breathing
+;    motion that expands and contracts over ~50 seconds.
+; ---------------------------------------------------------
+instr 2
+kcycle lfo 0.4, 0.02   ; extremely slow amplitude cycle
+aosc oscili 0.15 * (kcycle + 1) * 0.5, 180, 1
+
+; Low-pass filtering to keep the tone warm and smooth
+afilt butlp aosc, 400
+
+; Soft envelope to avoid any sudden edges
+aenv = afilt * linen(1, 4, p3, 4)
+
+outs aenv, aenv
+endin
+
+; ---------------------------------------------------------
+; 3. Light Mist — gentle spectral layer
+;    Two close sine frequencies create slow beating.
+;    No noise, no harshness. Feels like a soft glow.
+; ---------------------------------------------------------
+instr 3
+kmod1 lfo 0.05, 0.01   ; subtle frequency modulation
+kmod2 lfo 0.03, 0.015
+
+a1 oscili 0.08, 440 + kmod1, 1
+a2 oscili 0.08, 442 + kmod2, 1
+
+; Combine into a soft beating texture
+aout = (a1 + a2) * 0.5
+
+; Very long envelope for a floating, fog-like presence
+aout = aout * linen(1, 6, p3, 6)
+
+; Gentle low-pass to keep the timbre velvety
+aout butlp aout, 800
+
+outs aout, aout
+endin
+
+</CsInstruments>
+
+<CsScore>
+f1 0 4096 10 1
+
+; Long, stable layers
+i1 0 120
+i2 0 120
+i3 10 80
+
+</CsScore>
+
+</CsoundSynthesizer>
