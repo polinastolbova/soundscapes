@@ -1,0 +1,85 @@
+<CsoundSynthesizer>
+<CsOptions>
+-odac
+</CsOptions>
+
+<CsInstruments>
+sr = 48000
+ksmps = 64
+nchnls = 2
+0dbfs = 1
+
+instr 1
+; ---------------------------------------------------------
+; Base frequency for the entire texture
+; ---------------------------------------------------------
+ibase = 165
+
+; ---------------------------------------------------------
+; DRONE LAYER
+; Three sine waves with slow random frequency drift.
+; This creates a soft, stable harmonic bed.
+; ---------------------------------------------------------
+kDrift randh 0.3, 0.01
+a1 oscili 0.12, ibase + kDrift, 1
+a2 oscili 0.10, ibase*1.12 + kDrift*0.6, 1
+a3 oscili 0.08, ibase*1.18 + kDrift*0.3, 1
+aDrone = (a1 + a2 + a3) * 0.4
+
+; ---------------------------------------------------------
+; BREATHING PULSE
+; Very slow amplitude modulation acting like a heartbeat
+; or breathing motion. No sharp edges.
+; ---------------------------------------------------------
+kPulse randh 0.15, 0.2
+kPulse = abs(kPulse)
+aPulse oscili kPulse*0.1, 0.2, 1
+
+; ---------------------------------------------------------
+; SIMPLE MELODIC LINE
+; A primitive melodic gesture: randomly selects one of
+; three notes from a soft maqam-like interval set.
+; ---------------------------------------------------------
+kTrig metro 0.03
+if (kTrig == 1) then
+    kSel random 0, 3
+    if (kSel < 1) then
+        kNote = ibase * 1.12
+    elseif (kSel < 2) then
+        kNote = ibase * 1.18
+    else
+        kNote = ibase * 1.25
+    endif
+endif
+
+; Slow drift added to the melodic frequency
+kMelDrift randh 0.2, 0.02
+aMel oscili 0.05, kNote + kMelDrift, 1
+
+; ---------------------------------------------------------
+; MIXING
+; Drone + pulse + melody blended into one soft texture.
+; ---------------------------------------------------------
+aSum = aDrone + aPulse + aMel
+
+; ---------------------------------------------------------
+; REVERB
+; Long, gentle reverb to create a floating, atmospheric space.
+; ---------------------------------------------------------
+aRev reverb aSum, 2.5
+
+; Output with reverb mixed in
+outs aSum + aRev*0.3, aSum + aRev*0.3
+endin
+
+</CsInstruments>
+
+<CsScore>
+; Sine table
+f1 0 4096 10 1
+
+; Run the autonomous texture for one hour
+i1 0 3600
+</CsScore>
+
+</CsoundSynthesizer>
