@@ -1,0 +1,114 @@
+<CsoundSynthesizer>
+<CsOptions>
+-odac
+</CsOptions>
+
+<CsInstruments>
+sr = 44100
+ksmps = 32
+nchnls = 2
+0dbfs = 1
+
+; Global audio buses for mixing all layers
+gaL init 0
+gaR init 0
+
+; ------------------------------------------------------------
+; 1. CoolShade
+; A calm, stable mid‑range layer representing the cool shadow
+; under the Louvre Abu Dhabi dome. Very slow modulation to keep
+; the texture soft and non‑intrusive.
+; ------------------------------------------------------------
+instr CoolShade
+    kfreq = 380 + oscili(4, 0.006)          ; subtle frequency drift
+    kamp  = 0.02 + oscili(0.003, 0.01)      ; gentle amplitude movement
+
+    asig oscili kamp, kfreq
+    af tone asig, 2000                      ; soft filtering to remove harshness
+
+    gaL += af
+    gaR += af
+endin
+
+; ------------------------------------------------------------
+; 2. DomeGeometry
+; Soft overlapping tones inspired by the dome’s geometric light
+; patterns. Three slightly different frequencies create a gentle,
+; architectural interference pattern without becoming dense.
+; ------------------------------------------------------------
+instr DomeGeometry
+    kf1 = 520 + oscili(6, 0.01)
+    kf2 = 590 + oscili(5, 0.008)
+    kf3 = 660 + oscili(4, 0.006)
+
+    a1 oscili 0.012, kf1
+    a2 oscili 0.01,  kf2
+    a3 oscili 0.008, kf3
+
+    amix = (a1 + a2 + a3) * 0.6
+    af tone amix, 3200                      ; bright but diffused
+
+    gaL += af
+    gaR += af
+endin
+
+; ------------------------------------------------------------
+; 3. WaterMirror
+; A clean, reflective water tone — not noise, not ripple, but a
+; smooth resonant shimmer, like light bouncing off shallow water.
+; ------------------------------------------------------------
+instr WaterMirror
+    kfreq = 430 + oscili(10, 0.02)
+
+    asig oscili 0.01, kfreq
+    af tone asig, 2500                      ; soft high‑frequency smoothing
+
+    gaL += af
+    gaR += af
+endin
+
+; ------------------------------------------------------------
+; 4. SoftOrient
+; A very subtle Middle‑Eastern modal tint. Not melodic, not
+; dominant — just a gentle breath of regional color.
+; ------------------------------------------------------------
+instr SoftOrient
+    kbase = 610
+    kf = kbase * (1 + oscili(0.002, 0.01))  ; micro‑modulation for warmth
+
+    asig oscili 0.007, kf
+    af tone asig, 3500                      ; airy, smooth diffusion
+
+    gaL += af
+    gaR += af
+endin
+
+; ------------------------------------------------------------
+; 5. Master
+; Balances the overall output to maintain a stable loudness level
+; across all layers. Prevents the mix from drifting in volume.
+; ------------------------------------------------------------
+instr Master
+    aref oscili 0.1, 440                    ; reference tone for balance
+
+    aL balance gaL, aref
+    aR balance gaR, aref
+
+    outs aL, aR
+
+    gaL = 0
+    gaR = 0
+endin
+
+</CsInstruments>
+
+<CsScore>
+f 0 3600
+i "CoolShade"     0 3600
+i "DomeGeometry"  0 3600
+i "WaterMirror"   0 3600
+i "SoftOrient"    0 3600
+i "Master"        0 3600
+</CsScore>
+
+</CsoundSynthesizer>
